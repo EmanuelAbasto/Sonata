@@ -10,6 +10,7 @@ Audio subido  →  Compresión + Filtrado (FFmpeg)  →  Transcripción (Whisper
 
 ## Tabla de contenidos
 
+- [Capturas](#capturas)
 - [Alcance](#alcance)
 - [Arquitectura](#arquitectura)
 - [Estructura del monorepo](#estructura-del-monorepo)
@@ -19,6 +20,21 @@ Audio subido  →  Compresión + Filtrado (FFmpeg)  →  Transcripción (Whisper
 - [API](#api)
 - [Pruebas de carga](#pruebas-de-carga)
 - [Estado y limitaciones conocidas](#estado-y-limitaciones-conocidas)
+
+---
+
+## Capturas
+
+Stack completo corriendo con `docker compose up` (backend, frontend, PostgreSQL, MinIO, RabbitMQ y Ollama con GPU), probado subiendo un audio real de punta a punta.
+
+| | |
+|---|---|
+| **Subida de audios** — historial de jobs y drag & drop | **Procesamiento en vivo** — estado `Transcribing` notificado por WebSocket mientras corre el pipeline |
+| ![Pantalla de subida de audios](docs/screenshots/01-upload.jpg) | ![Job procesándose en tiempo real](docs/screenshots/02-live-processing.jpg) |
+| **Job completado** — transcripción y resumen generados por IA | **Dashboard de métricas** — tiempos por etapa del pipeline |
+| ![Detalle de un job completado con transcripción y resumen](docs/screenshots/03-job-completed.jpg) | ![Dashboard de métricas de procesamiento](docs/screenshots/04-metrics-dashboard.jpg) |
+
+> Nota: estas capturas corresponden a la imagen de `frontend` publicada como `:latest` en el registry, que en este momento tiene funcionalidad (rutas `/audio/{id}`, validación en Web Worker, búsqueda avanzada, badge "En vivo" por WebSocket) más avanzada que el código fuente de `frontend/` incluido en este monorepo. Antes de tocar el frontend conviene sincronizar el código fuente con lo que realmente está desplegado.
 
 ---
 
