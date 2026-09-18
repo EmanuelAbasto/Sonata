@@ -1,0 +1,13 @@
+# Normaliza los finales de línea a LF para todo archivo de texto, sin importar
+# el core.autocrlf del cliente que clona. Necesario porque AudioUploader/src/scripts/entrypoint.sh
+# se ejecuta directamente dentro de un contenedor Linux (ENTRYPOINT) — si Git lo
+# entrega con CRLF (típico en Windows con core.autocrlf=true), el shebang se
+# rompe y el contenedor falla con "exec /app/entrypoint.sh: no such file or directory".
+* text=auto eol=lf
+
+# Binarios: nunca tocar
+*.jpg -text
+*.jpeg -text
+*.png -text
+*.svg -text
+*.ico -text
