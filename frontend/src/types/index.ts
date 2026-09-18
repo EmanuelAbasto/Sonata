@@ -1,13 +1,13 @@
 export interface AudioFile {
   id: number;
-  originalFileName: string;
+  fileName: string;
   bucketPath: string;
   fileSize?: number;
   durationSeconds?: number;
   format?: string;
   fileType: string;
   createdAt: string;
-  jobStatus?: string;
+  jobStatusDisplay?: string;
   jobId?: string;
 }
 

@@ -73,16 +73,16 @@ export const AudioList: React.FC = () => {
           <TableBody>
             {audioFiles.map((file) => (
               <TableRow key={file.id}>
-                <TableCell>{file.originalFileName}</TableCell>
+                <TableCell>{file.fileName}</TableCell>
                 <TableCell>
                   {file.fileSize ? (file.fileSize / 1024).toFixed(1) + ' KB' : '-'}
                 </TableCell>
                 <TableCell>{file.format?.toUpperCase() || '-'}</TableCell>
                 <TableCell>
-                  {file.jobStatus && (
+                  {file.jobStatusDisplay && (
                     <Chip
-                      label={file.jobStatus}
-                      color={file.jobStatus === 'Completed' ? 'success' : 'warning'}
+                      label={file.jobStatusDisplay}
+                      color={file.jobStatusDisplay === 'Completed' ? 'success' : 'warning'}
                       size="small"
                     />
                   )}

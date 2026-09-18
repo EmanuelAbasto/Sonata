@@ -1,0 +1,18 @@
+# Overlay opcional para correr el stack con imágenes construidas localmente
+# (a partir de los Dockerfile de AudioUploader/ y frontend/ en este mismo
+# monorepo) en lugar de las imágenes publicadas en el Container Registry.
+#
+# Uso:
+#   docker build -t sonata-audiouploader:local -f ../AudioUploader/Dockerfile ../AudioUploader
+#   docker build -t sonata-frontend:local -f ../frontend/Dockerfile ../frontend
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
+#
+# No se auto-aplica: docker compose solo lo usa si se lo pasás explícitamente
+# con -f, así que "docker compose up" sigue usando las imágenes del registry
+# por defecto.
+services:
+  app:
+    image: sonata-audiouploader:local
+
+  frontend:
+    image: sonata-frontend:local

@@ -25,16 +25,29 @@ Audio subido  →  Compresión + Filtrado (FFmpeg)  →  Transcripción (Whisper
 
 ## Capturas
 
-Stack completo corriendo con `docker compose up` (backend, frontend, PostgreSQL, MinIO, RabbitMQ y Ollama con GPU), probado subiendo un audio real de punta a punta.
+Imágenes construidas **desde cero a partir del código fuente de este monorepo** (`docker build` sobre `AudioUploader/Dockerfile` y `frontend/Dockerfile`, sin usar las imágenes publicadas en el registry) y corridas con `docker compose` (backend, frontend, PostgreSQL, MinIO, RabbitMQ y Ollama con GPU). Probado subiendo un audio real de punta a punta.
 
 | | |
 |---|---|
-| **Subida de audios** — historial de jobs y drag & drop | **Procesamiento en vivo** — estado `Transcribing` notificado por WebSocket mientras corre el pipeline |
-| ![Pantalla de subida de audios](docs/screenshots/01-upload.jpg) | ![Job procesándose en tiempo real](docs/screenshots/02-live-processing.jpg) |
-| **Job completado** — transcripción y resumen generados por IA | **Dashboard de métricas** — tiempos por etapa del pipeline |
-| ![Detalle de un job completado con transcripción y resumen](docs/screenshots/03-job-completed.jpg) | ![Dashboard de métricas de procesamiento](docs/screenshots/04-metrics-dashboard.jpg) |
+| **Subir Audios** — formulario de subida con drag & drop | **Archivos de Audio** — listado con estado de cada job |
+| ![Pantalla de subida de audios](docs/screenshots/01-upload.jpg) | ![Listado de archivos de audio con su estado](docs/screenshots/02-audio-list.jpg) |
+| **Detalle de un Job** — estado y timestamps | **Dashboard de métricas** — tiempos por etapa del pipeline |
+| ![Detalle de estado de un job](docs/screenshots/03-job-status.jpg) | ![Dashboard de métricas de procesamiento](docs/screenshots/04-metrics-dashboard.jpg) |
 
-> Nota: estas capturas corresponden a la imagen de `frontend` publicada como `:latest` en el registry, que en este momento tiene funcionalidad (rutas `/audio/{id}`, validación en Web Worker, búsqueda avanzada, badge "En vivo" por WebSocket) más avanzada que el código fuente de `frontend/` incluido en este monorepo. Antes de tocar el frontend conviene sincronizar el código fuente con lo que realmente está desplegado.
+Construir y correr con las imágenes locales en vez de las del registry:
+
+```bash
+docker build -t sonata-audiouploader:local -f AudioUploader/Dockerfile AudioUploader
+docker build -t sonata-frontend:local -f frontend/Dockerfile frontend
+cd infrastructure
+docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
+```
+
+> **Nota sobre el estado del frontend:** al construir `frontend/` desde su código fuente (en vez de usar la imagen `:latest` del registry, que resultó estar más adelantada) aparecieron dos problemas reales que corregimos en este mismo commit para poder levantar el stack:
+> 1. `nginx.conf` proxyaba `/api/` a un host `api:8080` que no existe en `docker-compose.yml` (el servicio se llama `app` y escucha en `5247`) — el contenedor de nginx no arrancaba.
+> 2. El cliente HTTP del frontend esperaba las respuestas del backend sin envolver, pero la API siempre responde como `{ statusCode, response, error }` — sin desenvolver ese objeto, la lista de archivos fallaba con una excepción de JavaScript y la página quedaba en blanco.
+>
+> El código fuente de `frontend/` sigue por detrás de la imagen `:latest` publicada en el registry en otros aspectos (no tiene, por ejemplo, la búsqueda avanzada, la validación en Web Worker ni las notificaciones en vivo por WebSocket que sí tiene esa imagen) — ver [Estado y limitaciones conocidas](#estado-y-limitaciones-conocidas).
 
 ---
 
@@ -131,7 +144,10 @@ Sonata/
 │   └── src/
 ├── infrastructure/        # Docker Compose + pruebas de carga (k6)
 │   ├── docker-compose.yml
+│   ├── docker-compose.local.yml  # overlay opcional: usa imágenes construidas localmente
 │   └── k6/load-test.js
+├── docs/screenshots/      # Capturas usadas en este README
+├── .gitattributes         # Fuerza LF en scripts (evita romper entrypoint.sh en Linux)
 └── README.md              # Este documento
 ```
 
@@ -270,3 +286,4 @@ k6 run -e BASE_URL="http://localhost:5247" \
 - **No hay autenticación/autorización** en ningún endpoint — pensado para entorno de desarrollo/demo, no para exposición pública sin una capa adicional de seguridad.
 - El pipeline de transcripción/resumen depende de GPU NVIDIA para rendimiento aceptable; en CPU funciona pero significativamente más lento.
 - El frontend cubre el flujo básico (subir, ver estado, listar); no todas las capacidades del backend (filtrado de audio, dashboard de métricas, notificaciones en tiempo real) están integradas en la UI todavía.
+- El frontend construido desde código fuente quedó funcional (ver nota en [Capturas](#capturas)), pero el ícono "ver job" del listado usa un link muerto (`#job-{id}` en vez de navegar a `/job/{id}`) — hay que entrar a esa ruta manualmente.
