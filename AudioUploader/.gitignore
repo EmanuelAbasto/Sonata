@@ -1,0 +1,37 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET / Build Output
+[Bb]in/
+[Oo]bj/
+*.nupkg
+*.nuspec
+[Pp]ackages/
+*.csproj.user
+
+# Entorno y Secretos
+.env
+*.env
+!*.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# Logs y Archivos temporales
+*.log
+*.tmp
+*.bak
+*.orig
+
+# Publicación
+*.pubxml
+*.publishproj
+
+# Archivos de caché del sistema operativo
+.DS_Store
+Thumbs.db

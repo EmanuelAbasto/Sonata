@@ -1,0 +1,21 @@
+# Cada proyecto (AudioUploader/, frontend/, infrastructure/) mantiene su propio
+# .gitignore específico. Este archivo cubre solo la raíz del monorepo.
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+.vs/
+
+# Entorno / secretos (nunca commitear .env reales, solo *.env.example)
+.env
+*.env
+!*.env.example
+
+# Logs y temporales
+*.log
+*.tmp
+*.bak

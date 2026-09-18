@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Esta propiedad es clave para que el compilador reconozca el punto de entrada -->
+		<OutputType>Exe</OutputType>
+		<!-- GenerateProgramFile es opcional (por defecto true en Web SDK) pero lo dejamos explícito -->
+		<GenerateProgramFile>true</GenerateProgramFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\AudioUploader.Application\AudioUploader.Application.csproj" />
+		<ProjectReference Include="..\AudioUploader.Infrastructure\AudioUploader.Infrastructure.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+		<PackageReference Include="DotNetEnv" Version="3.2.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+	</ItemGroup>
+</Project>

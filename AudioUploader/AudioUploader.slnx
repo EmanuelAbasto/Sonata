@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AudioUploader.Application/AudioUploader.Application.csproj" />
+    <Project Path="src/AudioUploader.Domain/AudioUploader.Domain.csproj" />
+    <Project Path="src/AudioUploader.Infrastructure/AudioUploader.Infrastructure.csproj" />
+    <Project Path="src/AudioUploader.Web/AudioUploader.Web.csproj" />
+  </Folder>
+</Solution>
