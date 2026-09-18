@@ -31,3 +31,9 @@ Dockerfile
 
 # Readme
 README.md
+
+.env
+.env.local
+
+# Pero permitir .env.production
+!.env.production

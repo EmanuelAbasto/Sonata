@@ -29,10 +29,10 @@ Imágenes construidas **desde cero a partir del código fuente de este monorepo*
 
 | | |
 |---|---|
-| **Subir Audios** — formulario de subida con drag & drop | **Archivos de Audio** — listado con estado de cada job |
-| ![Pantalla de subida de audios](docs/screenshots/01-upload.jpg) | ![Listado de archivos de audio con su estado](docs/screenshots/02-audio-list.jpg) |
-| **Detalle de un Job** — estado y timestamps | **Dashboard de métricas** — tiempos por etapa del pipeline |
-| ![Detalle de estado de un job](docs/screenshots/03-job-status.jpg) | ![Dashboard de métricas de procesamiento](docs/screenshots/04-metrics-dashboard.jpg) |
+| **Subir Audios** — formulario de subida con drag & drop y validación en Web Worker | **Detalle de un Job** — checklist de progreso, versiones Original/Filtrado/Ligero, transcripción y resumen |
+| ![Pantalla de subida de audios](docs/screenshots/01-upload.jpg) | ![Detalle de un job completado con transcripción y resumen](docs/screenshots/02-job-completed.jpg) |
+| **Búsqueda avanzada** — filtros por nombre, estado, formato y fecha | **Dashboard de métricas** — tiempos por etapa del pipeline |
+| ![Búsqueda avanzada de archivos](docs/screenshots/03-search.jpg) | ![Dashboard de métricas de procesamiento](docs/screenshots/04-metrics-dashboard.jpg) |
 
 Construir y correr con las imágenes locales en vez de las del registry:
 
@@ -43,11 +43,7 @@ cd infrastructure
 docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
 ```
 
-> **Nota sobre el estado del frontend:** al construir `frontend/` desde su código fuente (en vez de usar la imagen `:latest` del registry, que resultó estar más adelantada) aparecieron dos problemas reales que corregimos en este mismo commit para poder levantar el stack:
-> 1. `nginx.conf` proxyaba `/api/` a un host `api:8080` que no existe en `docker-compose.yml` (el servicio se llama `app` y escucha en `5247`) — el contenedor de nginx no arrancaba.
-> 2. El cliente HTTP del frontend esperaba las respuestas del backend sin envolver, pero la API siempre responde como `{ statusCode, response, error }` — sin desenvolver ese objeto, la lista de archivos fallaba con una excepción de JavaScript y la página quedaba en blanco.
->
-> El código fuente de `frontend/` sigue por detrás de la imagen `:latest` publicada en el registry en otros aspectos (no tiene, por ejemplo, la búsqueda avanzada, la validación en Web Worker ni las notificaciones en vivo por WebSocket que sí tiene esa imagen) — ver [Estado y limitaciones conocidas](#estado-y-limitaciones-conocidas).
+> **Sobre la rama de `frontend/`:** este monorepo trackea el código fuente de la rama `feature/laboratory-9-Add-Audio-Filters-Component` del repositorio original de `frontend` (no `main`, que es una versión anterior y más simple, sin búsqueda avanzada, Web Workers ni WebSocket) — es la rama que generó la imagen `:latest` publicada en el registry, y coincide con lo que está desplegado. El backend, en cambio, ya trackeaba correctamente `feature/laboratory-9-Add-Audio-Filters` desde el principio.
 
 ---
 
@@ -103,7 +99,7 @@ Sonata permite:
                                                     └──────────────┘
 ```
 
-- **`frontend/`** — cliente web (React + TypeScript + Vite + MUI) para subir audio y ver el estado del procesamiento.
+- **`frontend/`** — cliente web (React + TypeScript + Vite + Tailwind) para subir audio, buscar en el historial y ver el estado del procesamiento en tiempo real (SignalR).
 - **`AudioUploader/`** — backend (ASP.NET Core / .NET 10), organizado en **Clean Architecture**:
   - `Domain` — entidades y reglas de negocio puras (`Job`, `AudioFile`, `Transcript`, cálculo de estado).
   - `Application` — casos de uso y puertos (interfaces) hacia infraestructura.
@@ -140,7 +136,7 @@ Sonata/
 │       ├── AudioUploader.Infrastructure/
 │       ├── AudioUploader.Web/
 │       └── scripts/       # whisper_transcribe.py, summary_generator.py
-├── frontend/              # Cliente web — React + TypeScript + Vite
+├── frontend/              # Cliente web — React + TypeScript + Vite + Tailwind
 │   └── src/
 ├── infrastructure/        # Docker Compose + pruebas de carga (k6)
 │   ├── docker-compose.yml
@@ -165,9 +161,11 @@ Sonata/
 | Transcripción | `faster-whisper` (Python, GPU/CUDA) |
 | Resumen | Ollama (`llama3.2`, LLM local) |
 | Procesamiento de audio | FFmpeg |
-| Frontend | React 18 + TypeScript + Vite + Material UI + Axios |
+| Frontend | React 18 + TypeScript + Vite + Tailwind CSS + Axios + `@microsoft/signalr` |
+| Validación de audio (cliente) | Web Workers (validación fuera del hilo principal) |
 | Contenedores | Docker / Docker Compose (runtime NVIDIA para GPU) |
 | Pruebas de carga | k6 |
+| Tests (frontend) | Vitest + Testing Library |
 
 ---
 
@@ -282,8 +280,7 @@ k6 run -e BASE_URL="http://localhost:5247" \
 ## Estado y limitaciones conocidas
 
 - Proyecto académico (Capstone) en desarrollo activo.
-- **No hay tests automatizados** ni pipeline de CI configurado todavía.
+- **Backend sin tests automatizados** ni pipeline de CI configurado todavía. El frontend sí tiene un test (Vitest) para la validación de audio (`frontend/src/__tests__/audioValidation.test.ts`), pero es el único.
 - **No hay autenticación/autorización** en ningún endpoint — pensado para entorno de desarrollo/demo, no para exposición pública sin una capa adicional de seguridad.
 - El pipeline de transcripción/resumen depende de GPU NVIDIA para rendimiento aceptable; en CPU funciona pero significativamente más lento.
-- El frontend cubre el flujo básico (subir, ver estado, listar); no todas las capacidades del backend (filtrado de audio, dashboard de métricas, notificaciones en tiempo real) están integradas en la UI todavía.
-- El frontend construido desde código fuente quedó funcional (ver nota en [Capturas](#capturas)), pero el ícono "ver job" del listado usa un link muerto (`#job-{id}` en vez de navegar a `/job/{id}`) — hay que entrar a esa ruta manualmente.
+- El dashboard de métricas (`/dashboard.html`) es una página estática servida por el backend, separada del SPA de React — no está integrado como una vista más de `frontend/`.

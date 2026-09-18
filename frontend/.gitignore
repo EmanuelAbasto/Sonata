@@ -1,36 +1,8 @@
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Build outputs
-dist/
-build/
+node_modules
+dist
+dist-ssr
 *.local
-
-# Environment variables
 .env
 .env.local
-.env.*.local
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
+npm-debug.log*
 .DS_Store
-Thumbs.db
-
-# Coverage
-coverage/
-*.lcov
-
-# Misc
-*.log
-*.tmp
-*.temp
